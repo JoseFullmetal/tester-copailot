@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registro Estudiantes Universidad</title>
+  <style>
+    :root {
+      --blue: #1f4e8c;
+      --blue-dark: #153662;
+      --gray: #4a4a4a;
+      --light: #f5f8fc;
+      --on-surface: #111;
+      --danger: #d32f2f;
+      --success: #2e7d32;
+      --shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      --radius: 10px;
+    }
+    *{box-sizing:border-box}
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(180deg, #eef4fb 0%, #dbeaf9 100%);
+      color: var(--on-surface);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .card {
+      max-width: 1100px;
+      margin: auto;
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+    h1 { margin-top: 0; color: var(--blue-dark); }
+    .grid2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 16px;
+    }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    label {
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    .input-group::before {
+      content: attr(data-icon);
+      position: absolute;
+      top: 35px;
+      left: 10px;
+      font-size: 14px;
+      color: var(--blue);
+    }
+    input, select {
+      appearance: none;
+      padding: 12px 12px 12px 32px;
+      border-radius: 8px;
+      border: 1px solid #b8c8dd;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color .25s ease, box-shadow .25s ease, transform .25s ease;
+      background: #fff;
+    }
+    input:focus, select:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(31, 78, 140, .15);
+      transform: translateY(-1px);
+    }
+    input[readonly] {
+      background: #eff4fb;
+      cursor: not-allowed;
+      color: #556679;
+    }
+    .error-text {
+      color: var(--danger);
+      font-size: .88rem;
+      margin-top: 4px;
+      min-height: 18px;
+      opacity: 0;
+      transform: translateY(-2px);
+      transition: opacity .2s linear, transform .2s linear;
+    }
+    .error-text.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .message {
+      margin: 12px 0;
+      padding: 12px 16px;
+      border-radius: 8px;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      animation: fadeSlide .35s ease;
+      font-weight: 600;
+    }
+    .message.show { display: flex; }
+    .message.success { background: #dff5eb; color: var(--success); border: 1px solid #a0d5b0; }
+    .message.error { background: #fde8e8; color: var(--danger); border: 1px solid #ebaaa9; }
+    .btn-row {
+      margin-top: 16px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    button {
+      border: none;
+      cursor: pointer;
+      border-radius: 8px;
+      padding: 12px 18px;
+      font-weight: 700;
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+    button:hover { transform: translateY(-1px); box-shadow: 0 6px 15px rgba(0,0,0,.12); }
+    button:active { transform: translateY(0); }
+    .primary { background: var(--blue); color: #fff; }
+    .secondary { background: #e8ecf4; color: #222; }
+    .table-card {
+      margin-top: 24px;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px 8px;
+      border-bottom: 1px solid #e8ebf0;
+      font-size: .93rem;
+    }
+    th { background: #f2f6fb; color: #1b3f6b; font-weight: 600; }
+    tr:last-child td { border-bottom: none; }
+    tr.new-row { animation: fadeRow .5s ease forwards; }
+    @keyframes fadeRow {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @media (max-width: 860px) {
+      .grid2 { grid-template-columns: 1fr; }
+      .input-group::before { top: 26px; }
+      input, select { padding-left: 30px; }
+    }
+    .hint { font-size:.85rem; color:#5a6878; margin-top:4px; }
+  </style>
+</head>
+<body>
+  <div class="card" role="main" aria-label="Formulario de registro de estudiantes universitarios">
+    <h1>Registro Estudiantes Universidad</h1>
+    <p class="hint">Ingresa los datos completos del estudiante. Todos los campos son obligatorios.</p>
+
+    <div id="message" class="message" role="alert" aria-live="polite"></div>
+
+    <form id="studentForm" novalidate>
+      <div class="grid2">
+        <div class="input-group" data-icon="🆔">
+          <label for="identificacion">Identificación</label>
+          <input id="identificacion" name="identificacion" type="text" autocomplete="off" maxlength="20" required />
+          <span class="error-text" id="errIdentificacion"></span>
+        </div>
+
+        <div class="input-group" data-icon="👤">
+          <label for="nombre">Nombre</label>
+          <input id="nombre" name="nombre" type="text" autocomplete="off" required />
+          <span class="error-text" id="errNombre"></span>
+        </div>
+
+        <div class="input-group" data-icon="👤">
+          <label for="apellido">Apellido</label>
+          <input id="apellido" name="apellido" type="text" autocomplete="off" required />
+          <span class="error-text" id="errApellido"></span>
+        </div>
+
+        <div class="input-group" data-icon="✉️">
+          <label for="correo">Correo electrónico</label>
+          <input id="correo" name="correo" type="email" autocomplete="off" required />
+          <span class="error-text" id="errCorreo"></span>
+        </div>
+
+        <div class="input-group" data-icon="🌍">
+          <label for="pais">País</label>
+          <input id="pais" name="pais" type="text" autocomplete="off" required />
+          <span class="error-text" id="errPais"></span>
+        </div>
+
+        <div class="input-group" data-icon="🎓">
+          <label for="carrera">Carrera</label>
+          <select id="carrera" name="carrera" required>
+            <option value="">Seleccione...</option>
+            <option value="Ing. Informática">Ing. Informática</option>
+            <option value="Ing. Electrónica">Ing. Electrónica</option>
+            <option value="Ing. Telecomunicaciones">Ing. Telecomunicaciones</option>
+            <option value="Ing. Robótica">Ing. Robótica</option>
+            <option value="Otra">Otra</option>
+          </select>
+          <span class="error-text" id="errCarrera"></span>
+        </div>
+
+        <div class="input-group" data-icon="📅">
+          <label for="fechaNacimiento">Fecha de nacimiento</label>
+          <input id="fechaNacimiento" name="fechaNacimiento" type="date" required />
+          <span class="error-text" id="errFechaNacimiento"></span>
+        </div>
+
+        <div class="input-group" data-icon="⌛">
+          <label for="edad">Edad</label>
+          <input id="edad" name="edad" type="text" readonly value="—" aria-readonly="true" />
+          <span class="error-text" id="errEdad"></span>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button type="submit" class="primary" id="btnRegistrar">Registrar</button>
+        <button type="button" class="secondary" id="btnLimpiar">Limpiar</button>
+      </div>
+    </form>
+
+    <div class="table-card" aria-label="Estudiantes registrados">
+      <table id="studentsTable" aria-describedby="tableInfo">
+        <caption id="tableInfo" style="caption-side: top; text-align:left; font-weight:bold; margin-bottom:8px;">Lista de estudiantes registrados</caption>
+        <thead>
+          <tr>
+            <th>Identificación</th>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Correo</th>
+            <th>País</th>
+            <th>Carrera</th>
+            <th>Nacimiento</th>
+            <th>Edad</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('studentForm');
+    const messageBox = document.getElementById('message');
+    const edadInput = document.getElementById('edad');
+    const fechaInput = document.getElementById('fechaNacimiento');
+    const tableBody = document.querySelector('#studentsTable tbody');
+
+    const state = { estudiantes: [] };
+
+    const validators = {
+      identificacion(value) {
+        if (!value.trim()) return 'La identificación es obligatoria.';
+        if (value.length < 5) return 'Debe tener al menos 5 caracteres.';
+        if (!/^[a-zA-Z0-9]+$/.test(value)) return 'Solo números y letras sin espacios.';
+        return '';
+      },
+      nombre(value) {
+        if (!value.trim()) return 'El nombre es obligatorio.';
+        if (value.trim().length < 2) return 'Mínimo 2 caracteres.';
+        if (!/^[A-Za-zÀ-ÖØ-öø-ÿñÑ ]+$/.test(value)) return 'Solo letras y espacios (tildes y ñ permitidos).';
+        return '';
+      },
+      apellido(value) {
+        if (!value.trim()) return 'El apellido es obligatorio.';
+        if (value.trim().length < 2) return 'Mínimo 2 caracteres.';
+        if (!/^[A-Za-zÀ-ÖØ-öø-ÿñÑ ]+$/.test(value)) return 'Solo letras y espacios (tildes y ñ permitidos).';
+        return '';
+      },
+      correo(value) {
+        if (!value.trim()) return 'El correo es obligatorio.';
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!regex.test(value)) return 'Formato de correo inválido.';
+        return '';
+      },
+      pais(value) {
+        if (!value.trim()) return 'El país es obligatorio.';
+        return '';
+      },
+      carrera(value) {
+        if (!value.trim()) return 'Selecciona una carrera.';
+        return '';
+      },
+      fechaNacimiento(value) {
+        if (!value) return 'La fecha de nacimiento es obligatoria.';
+        const selected = new Date(value + 'T00:00:00');
+        if (isNaN(selected.getTime())) return 'Fecha inválida.';
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        if (selected > today) return 'La fecha no puede ser futura.';
+        return '';
+      }
+    };
+
+    function setError(fieldId, msg) {
+      const errorSpan = document.getElementById('err' + fieldId.charAt(0).toUpperCase() + fieldId.slice(1));
+      if (!errorSpan) return;
+      errorSpan.textContent = msg;
+      errorSpan.classList.toggle('active', !!msg);
+    }
+
+    function clearErrors() {
+      for (const id of ['Identificacion','Nombre','Apellido','Correo','Pais','Carrera','FechaNacimiento','Edad']) {
+        const el = document.getElementById('err'+id);
+        if (el) { el.textContent=''; el.classList.remove('active'); }
+      }
+    }
+
+    function showMessage(text, type='success') {
+      messageBox.textContent = text;
+      messageBox.className = 'message show ' + type;
+      setTimeout(() => {
+        messageBox.className = 'message ';
+      }, 3800);
+    }
+
+    function calculateAge(dateString) {
+      if (!dateString) return '—';
+      const birthDate = new Date(dateString + 'T00:00:00');
+      const now = new Date();
+      if (isNaN(birthDate.getTime()) || birthDate > now) return '—';
+      let age = now.getFullYear() - birthDate.getFullYear();
+      const m = now.getMonth() - birthDate.getMonth();
+      if (m < 0 || (m === 0 && now.getDate() < birthDate.getDate())) age--;
+      return String(age);
+    }
+
+    function validateForm() {
+      let valid = true;
+      const data = {
+        identificacion: document.getElementById('identificacion').value,
+        nombre: document.getElementById('nombre').value,
+        apellido: document.getElementById('apellido').value,
+        correo: document.getElementById('correo').value,
+        pais: document.getElementById('pais').value,
+        carrera: document.getElementById('carrera').value,
+        fechaNacimiento: document.getElementById('fechaNacimiento').value,
+      };
+
+      for (const key in data) {
+        const error = validators[key](data[key]);
+        setError(key, error);
+        if (error) valid = false;
+      }
+
+      const edad = calculateAge(data.fechaNacimiento);
+      if (edad === '—') {
+        setError('Edad', 'Edad no puede calcularse con la fecha ingresada.');
+        valid = false;
+      } else {
+        setError('Edad', '');
+      }
+
+      const existsId = state.estudiantes.some(s => s.identificacion.toLowerCase() === data.identificacion.trim().toLowerCase());
+      const existsEmail = state.estudiantes.some(s => s.correo.toLowerCase() === data.correo.trim().toLowerCase());
+
+      if (existsId) {
+        setError('Identificacion', 'Identificación duplicada.');
+        valid = false;
+      }
+      if (existsEmail) {
+        setError('Correo', 'Correo duplicado.');
+        valid = false;
+      }
+
+      return { valid, data, edad };
+    }
+
+    function addStudentToTable(student) {
+      const row = document.createElement('tr');
+      row.classList.add('new-row');
+      row.innerHTML = `
+        <td>${student.identificacion}</td>
+        <td>${student.nombre}</td>
+        <td>${student.apellido}</td>
+        <td>${student.correo}</td>
+        <td>${student.pais}</td>
+        <td>${student.carrera}</td>
+        <td>${student.fechaNacimiento}</td>
+        <td>${student.edad}</td>`;
+      tableBody.appendChild(row);
+      setTimeout(() => row.classList.remove('new-row'), 600);
+    }
+
+    function resetForm() {
+      form.reset();
+      edadInput.value = '—';
+      clearErrors();
+      messageBox.textContent = '';
+      messageBox.className = 'message';
+    }
+
+    fechaInput.addEventListener('input', () => {
+      const value = fechaInput.value;
+      const error = validators.fechaNacimiento(value);
+      if (error) {
+        setError('FechaNacimiento', error);
+        edadInput.value = '—';
+        return;
+      }
+      setError('FechaNacimiento', '');
+      const edad = calculateAge(value);
+      if (edad === '—') {
+        setError('Edad', 'Edad no puede calcularse con la fecha ingresada.');
+      } else {
+        setError('Edad', '');
+      }
+      edadInput.value = edad;
+    });
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      clearErrors();
+      const { valid, data, edad } = validateForm();
+
+      if (!valid) {
+        showMessage('Hay errores en el formulario. Verifica los campos.', 'error');
+        return;
+      }
+
+      const student = { ...data, edad };
+      state.estudiantes.push(student);
+      addStudentToTable(student);
+      resetForm();
+      showMessage('Estudiante registrado con éxito.', 'success');
+    });
+
+    document.getElementById('btnLimpiar').addEventListener('click', function () {
+      resetForm();
+      showMessage('Formulario limpiado. La tabla se mantiene.', 'success');
+    });
+
+  </script>
+</body>
+</html>
